@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
@@ -21,9 +22,14 @@ export function Header() {
           aria-label="Oak & Aura Care home"
           href="/"
         >
-          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/12 ring-1 ring-primary/25">
-            <span className="size-3 rounded-full bg-primary" />
-          </span>
+          <Image
+            src="/images/logo.png"
+            alt="Oak & Aura Care"
+            width={38}
+            height={38}
+            className="size-9 shrink-0 rounded-full object-contain"
+            priority
+          />
           <span className="truncate font-heading text-[15px] font-bold text-foreground">
             Oak &amp; Aura Care
           </span>

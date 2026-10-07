@@ -14,7 +14,7 @@ export function EnquiryForm() {
   if (sent) {
     return (
       <div className="mt-6 rounded-[18px] border border-accent/30 bg-accent/10 p-6 text-sm leading-6">
-        <p className="font-heading font-bold">Thank you—your enquiry is on its way.</p>
+        <p className="font-heading font-bold">Thank you, your enquiry is on its way.</p>
         <p className="mt-2 text-muted-foreground">
           A member of our team will be in touch to talk through the next step.
         </p>

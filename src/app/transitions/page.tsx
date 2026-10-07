@@ -46,7 +46,7 @@ export default function TransitionsPage() {
         <div className="md:col-span-7">
           <div className="glass-panel overflow-hidden rounded-[28px] p-3">
             <Image
-              src="/images/transition-care.jpg"
+              src="/images/transition-care.webp"
               alt="An older person and family member reviewing a transition plan with a support coordinator"
               width={1200}
               height={900}

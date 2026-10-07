@@ -3,6 +3,7 @@ import { Sora, Manrope } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { RevealScript } from "@/components/RevealScript";
 
 const sora = Sora({
   variable: "--font-sora",
@@ -44,6 +45,7 @@ export default function RootLayout({
           <main>{children}</main>
           <Footer />
         </div>
+        <RevealScript />
       </body>
     </html>
   );

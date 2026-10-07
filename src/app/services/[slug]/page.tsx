@@ -54,8 +54,8 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
         <div className="md:col-span-7">
           <div className="glass-panel overflow-hidden rounded-[28px] p-3">
             <Image
-              src="/images/daily-living.jpg"
-              alt="A participant and support worker sharing an everyday moment at home"
+              src={service.image}
+              alt={service.imageAlt}
               width={1200}
               height={900}
               priority
