@@ -4,12 +4,11 @@ import { ArrowRight } from "lucide-react";
 import { SERVICES, buttonVariants } from "@/lib/data";
 
 const FEATURED = [
-  "mental-health",
-  "accommodation",
-  "community-participation",
-  "daily-living-skills",
-  "respite-care",
-  "plan-management",
+  "supported-independent-living",
+  "hospital-and-aged-care-transitions",
+  "disability-accommodation",
+  "clinical-care-at-home",
+  "community-access",
 ];
 
 export default function Home() {
@@ -17,41 +16,50 @@ export default function Home() {
 
   return (
     <>
-      <section className="relative overflow-hidden">
-        <div className="mx-auto grid max-w-[1600px] items-center gap-10 px-6 pb-16 pt-14 md:grid-cols-12">
-          <div className="reveal md:col-span-5">
-            <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-3 py-1 text-xs font-bold uppercase text-primary">
-              <span className="size-1.5 rounded-full bg-leaf" />
-              Registered NDIS provider
-            </p>
-            <h1 className="font-heading text-5xl font-extrabold leading-[1.02] sm:text-6xl">
-              Care that keeps the sun coming through.
-            </h1>
-            <p className="mt-5 max-w-md text-base leading-7 text-muted-foreground">
-              Oak &amp; Aura supports people across disability, aged care and daily living—warm,
-              practical, and always centred on the person.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link className={`${buttonVariants.primary} py-2 h-11 rounded-full px-5`} href="/services">
-                Explore services
-                <ArrowRight aria-hidden />
-              </Link>
-              <Link className={`${buttonVariants.outline} py-2 h-11 rounded-full px-5`} href="/contact">
-                Book a chat
-              </Link>
-            </div>
-          </div>
-          <div className="reveal md:col-span-7">
-            <div className="glass-panel overflow-hidden rounded-[28px] p-3">
-              <Image
-                src="/images/hero-care.jpg"
-                alt="An older woman sharing tea and laughter with a support worker"
-                width={1200}
-                height={832}
-                priority
-                className="aspect-[4/3] w-full rounded-[20px] object-cover"
-              />
-            </div>
+      <section className="relative isolate overflow-hidden">
+        <video
+          className="absolute inset-0 -z-20 size-full object-cover"
+          src="/videos/hero-loop.mp4"
+          poster="/images/hero-video-poster.jpg"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-0 -z-10 bg-gradient-to-b from-foreground/75 via-foreground/45 to-foreground/80"
+          aria-hidden="true"
+        />
+        <div className="mx-auto flex min-h-[78vh] max-w-[1600px] flex-col items-start justify-center px-6 py-24 text-background">
+          <p className="reveal mb-4 inline-flex items-center gap-2 rounded-full border border-background/30 bg-background/10 px-3 py-1 text-xs font-bold uppercase text-background backdrop-blur-sm">
+            <span className="size-1.5 rounded-full bg-leaf" />
+            Registered NDIS provider
+          </p>
+          <h1 className="reveal font-heading text-5xl font-extrabold leading-[1.02] drop-shadow-sm sm:text-6xl md:text-7xl">
+            Connecting hearts,
+            <br />
+            changing lives.
+          </h1>
+          <p className="reveal mt-5 max-w-md text-base leading-7 text-background/85">
+            Oak &amp; Aura supports people across disability, aged care and daily living—warm,
+            practical, and always centred on the person.
+          </p>
+          <div className="reveal mt-7 flex flex-wrap gap-3">
+            <Link
+              className={`${buttonVariants.primary} py-2 h-11 rounded-full px-5`}
+              href="/services"
+            >
+              Explore services
+              <ArrowRight aria-hidden />
+            </Link>
+            <Link
+              className={`${buttonVariants.outline} py-2 h-11 rounded-full px-5 !border-background/40 !text-background hover:!bg-background/15`}
+              href="/contact"
+            >
+              Book a chat
+            </Link>
           </div>
         </div>
       </section>
