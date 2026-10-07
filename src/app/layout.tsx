@@ -24,11 +24,19 @@ export const metadata: Metadata = {
   },
   description:
     "Personalised disability, aged care and youth support that builds confidence, choice and everyday independence.",
-  metadataBase: new URL("https://comforting-journeys-web.lovable.app"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://onacare.com.au",
+  ),
   openGraph: {
     title: "Oak & Aura Care | Support centred on you",
     description: "Warm, practical support for disability, aged care and everyday living.",
     type: "website",
+    siteName: "Oak & Aura Care",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Oak & Aura Care | Support centred on you",
+    description: "Warm, practical support for disability, aged care and everyday living.",
   },
 };
 
