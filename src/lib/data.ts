@@ -49,7 +49,7 @@ export const SERVICES: Service[] = [
   },
   {
     slug: "hospital-and-aged-care-transitions",
-    image: "/images/transition-care.webp",
+    image: "/Requested-Images/transition.jpeg",
     imageAlt: "A clinician planning a hospital discharge with a couple at their kitchen table",
     title: "Hospital & aged care transitions",
     category: "Clinical care",
@@ -70,7 +70,7 @@ export const SERVICES: Service[] = [
   },
   {
     slug: "disability-accommodation",
-    image: "/images/hero-care.webp",
+    image: "/Requested-Images/hero-care.jpeg",
     imageAlt: "An older woman sharing tea and laughter with a support worker at home",
     title: "Disability accommodation",
     category: "Home & living",
@@ -91,7 +91,7 @@ export const SERVICES: Service[] = [
   },
   {
     slug: "clinical-care-at-home",
-    image: "/images/nurse-visit.webp",
+    image: "/Requested-Images/nurse-visit.jpeg",
     imageAlt: "A nurse sitting beside a man in a wheelchair in his living room",
     title: "Clinical care at home",
     category: "Clinical care",

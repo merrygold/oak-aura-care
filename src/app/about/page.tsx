@@ -128,7 +128,7 @@ export default function AboutPage() {
       <section className="mx-auto max-w-[1600px] px-6 pb-16">
         <div data-reveal>
           <StorySection
-            image="/images/team.webp"
+            image="/Requested-Images/team.jpeg"
             imageAlt="The Oak and Aura team of nurses, doctors and support workers standing together"
             eyebrow="Our people"
             heading="One team, from the clinic to the kitchen table."

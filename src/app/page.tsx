@@ -190,7 +190,7 @@ export default function Home() {
 
       <div data-reveal>
         <StorySection
-          image="/images/story-margaret.webp"
+          image="/Requested-Images/story-margaret.jpeg"
           imageAlt="Margaret baking together with her granddaughter at home"
           eyebrow="From hospital to home"
           heading="Margaret came home six weeks after her injury. Her plan, her pace."
