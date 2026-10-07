@@ -85,8 +85,8 @@ export default function VacanciesPage() {
         <div className="md:col-span-7">
           <div className="glass-panel overflow-hidden rounded-[28px] p-3">
             <Image
-              src="/images/sil-home.webp"
-              alt="A modern accessible SIL home with a wide pathway and garden"
+              src="/Requested-Images/VacanciesHome.jpeg"
+              alt="Exterior of a modern accessible Australian home with ramp access and tidy garden"
               width={1200}
               height={900}
               priority
@@ -131,8 +131,8 @@ export default function VacanciesPage() {
         <div className="glass-panel overflow-hidden rounded-[26px]">
           <div className="grid md:grid-cols-2">
             <Image
-              src="/Requested-Images/home.jpeg"
-              alt="Inside an accessible and welcoming SIL home"
+              src="/Requested-Images/VacanciesLounge.jpeg"
+              alt="Modern accessible lounge room designed for supported independent living"
               width={1200}
               height={1008}
               className="h-full min-h-80 w-full object-cover"

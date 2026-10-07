@@ -94,8 +94,8 @@ export default function CareersPage() {
         <div className="md:col-span-7">
           <div className="glass-panel overflow-hidden rounded-[28px] p-3">
             <Image
-              src="/images/team.webp"
-              alt="The Oak and Aura Care team of nurses and support workers together"
+              src="/Requested-Images/CareerTeam.jpeg"
+              alt="Diverse team of Oak and Aura Care workers standing together outdoors"
               width={1200}
               height={900}
               priority
@@ -179,8 +179,8 @@ export default function CareersPage() {
         <div className="glass-panel overflow-hidden rounded-[26px]">
           <div className="grid md:grid-cols-2">
             <Image
-              src="/images/nurse-visit.webp"
-              alt="A support worker talking warmly with a participant at home"
+              src="/Requested-Images/CareerWorker.jpeg"
+              alt="A support worker crouching to eye level with a wheelchair-using participant, both smiling"
               width={1200}
               height={1008}
               className="h-full min-h-80 w-full object-cover"

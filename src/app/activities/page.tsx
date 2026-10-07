@@ -71,8 +71,8 @@ export default function ActivitiesPage() {
         <div className="md:col-span-7">
           <div className="glass-panel overflow-hidden rounded-[28px] p-3">
             <Image
-              src="/images/community-activity.webp"
-              alt="A young man in a wheelchair laughing at a produce market with his support worker"
+              src="/Requested-Images/ActivitiesHero.jpeg"
+              alt="Participants and support workers engaged in a joyful group craft activity"
               width={1200}
               height={900}
               priority

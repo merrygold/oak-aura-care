@@ -154,7 +154,7 @@ export const SERVICES: Service[] = [
   },
   {
     slug: "support-coordination",
-    image: "/images/team.webp",
+    image: "/Requested-Images/SupportCordination.jpeg",
     imageAlt: "A support coordinator reviewing an NDIS plan with a participant and their family",
     title: "Support coordination",
     category: "Planning",
@@ -175,7 +175,7 @@ export const SERVICES: Service[] = [
   },
   {
     slug: "behaviour-support",
-    image: "/images/nurse-visit.webp",
+    image: "/Requested-Images/BehaviourSupport.jpeg",
     imageAlt: "A behaviour support practitioner meeting with a participant in a calm home setting",
     title: "Positive behaviour support",
     category: "Clinical care",

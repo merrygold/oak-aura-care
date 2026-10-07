@@ -73,8 +73,8 @@ export default function AboutPage() {
         <div className="md:col-span-7">
           <div className="glass-panel overflow-hidden rounded-[28px] p-3">
             <Image
-              src="/images/hero-care.webp"
-              alt="An older woman enjoying a relaxed conversation with a care worker"
+              src="/Requested-Images/AboutHero.jpeg"
+              alt="An older woman sharing a warm moment with a support worker in a sunny garden"
               width={1200}
               height={900}
               priority
