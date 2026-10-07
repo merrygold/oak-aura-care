@@ -3,18 +3,29 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { NAV_LINKS, buttonVariants } from "@/lib/data";
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 70);
+    window.addEventListener("scroll", handler, { passive: true });
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
 
   return (
     <header className="sticky top-0 z-50 px-3 pt-3 sm:px-4 sm:pt-4">
       <nav
-        className="glass-nav mx-auto flex max-w-[1600px] items-center gap-3 rounded-full px-3 py-2.5 sm:px-5"
+        className={`mx-auto flex max-w-[1600px] items-center gap-3 rounded-full px-3 py-2.5 sm:px-5 transition-all duration-300 ${
+          scrolled
+            ? "border border-border/50 bg-background/98 shadow-lg backdrop-blur-sm"
+            : "glass-nav"
+        }`}
         aria-label="Main navigation"
       >
         <Link

@@ -25,28 +25,38 @@ export const metadata: Metadata = {
 function ServiceCard({ slug }: { slug: string }) {
   const service = SERVICES.find((s) => s.slug === slug)!;
   return (
-    <Link
-      className="glass-panel group flex flex-col overflow-hidden rounded-[22px] transition-transform hover:-translate-y-1"
-      href={`/services/${service.slug}`}
-    >
-      <div className="relative h-52 overflow-hidden">
-        <Image
-          src={service.image}
-          alt={service.imageAlt}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+    <div className="glass-panel group flex flex-col overflow-hidden rounded-[22px] transition-transform hover:-translate-y-1">
+      <Link href={`/services/${service.slug}`} className="block">
+        <div className="relative h-52 overflow-hidden">
+          <Image
+            src={service.image}
+            alt={service.imageAlt}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        </div>
+        <div className="flex flex-col p-7 pb-4">
+          <p className="eyebrow text-leaf">{service.category}</p>
+          <h2 className="mt-3 font-heading text-2xl font-bold">{service.title}</h2>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">{service.blurb}</p>
+        </div>
+      </Link>
+      <div className="flex gap-2 px-7 pb-6 pt-1">
+        <Link
+          href={`/referral?service=${service.slug}`}
+          className={`${buttonVariants.primary} h-9 rounded-full px-4 text-xs`}
+        >
+          Request
+          <ArrowRight className="size-3.5" aria-hidden />
+        </Link>
+        <Link
+          href={`/services/${service.slug}`}
+          className={`${buttonVariants.outline} h-9 rounded-full px-4 text-xs`}
+        >
+          Learn more
+        </Link>
       </div>
-      <div className="flex flex-col p-7">
-        <p className="eyebrow text-leaf">{service.category}</p>
-        <h2 className="mt-3 font-heading text-2xl font-bold">{service.title}</h2>
-        <p className="mt-3 text-sm leading-6 text-muted-foreground">{service.blurb}</p>
-        <span className="mt-5 inline-flex items-center gap-1 text-sm font-bold text-primary">
-          Explore support
-          <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
-        </span>
-      </div>
-    </Link>
+    </div>
   );
 }
 

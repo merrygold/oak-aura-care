@@ -45,9 +45,15 @@ export default async function ServicePage({ params }: { params: Promise<{ slug: 
             {service.intro}
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <Link className={`${buttonVariants.primary} py-2 h-11 rounded-full px-5`} href="/contact">
-              Ask about this support
+            <Link
+              className={`${buttonVariants.primary} py-2 h-11 rounded-full px-5`}
+              href={`/referral?service=${service.slug}`}
+            >
+              Request this service
               <ArrowRight aria-hidden />
+            </Link>
+            <Link className={`${buttonVariants.outline} py-2 h-11 rounded-full px-5`} href="/contact">
+              Ask a question
             </Link>
           </div>
         </div>
