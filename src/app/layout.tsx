@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   description:
     "Personalised disability, aged care and youth support that builds confidence, choice and everyday independence.",
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://onacare.com.au",
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://oak-aura-care.vercel.app",
   ),
   openGraph: {
     title: "Oak & Aura Care | Support centred on you",

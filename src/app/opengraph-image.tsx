@@ -6,10 +6,10 @@ export const alt = "Oak & Aura Care — Support centred on you";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-const logoData = readFileSync(join(process.cwd(), "public/images/logo.png"));
-const logoSrc = `data:image/png;base64,${logoData.toString("base64")}`;
-
 export default function Image() {
+  const logoData = readFileSync(join(process.cwd(), "public/images/logo.png"));
+  const logoSrc = `data:image/png;base64,${logoData.toString("base64")}`;
+
   return new ImageResponse(
     (
       <div
