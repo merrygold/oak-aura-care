@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { ReferralForm } from "@/components/ReferralForm";
 
+export const instant = false;
+
 export const metadata: Metadata = {
   title: { absolute: "Request a service — Oak & Aura Care" },
   description:
