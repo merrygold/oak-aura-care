@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Next.js version warning
 
-This project uses **Next.js 16** (React 19), which has breaking API changes from older versions. Before writing any Next.js-specific code, read the relevant guide at `node_modules/next/dist/docs/` — especially `01-app/` for App Router APIs. The `AGENTS.md` file at the repo root is maintained automatically by `next dev`; do not remove it.
+This project uses **Next.js 16** (React 19), which has breaking API changes from older versions. Before writing any Next.js-specific code, read the relevant guide at `node_modules/next/dist/docs/` — especially `01-app/` for App Router  APIs. The `AGENTS.md` file at the repo root is maintained automatically by `next dev`; do not remove it.
 
 ## Commands
 
