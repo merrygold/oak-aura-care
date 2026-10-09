@@ -31,10 +31,10 @@ function logoHeader(title: string, subtitle: string): string {
 <tr>
   <td style="background:linear-gradient(135deg,#4A1070 0%,#2D0B50 100%);padding:36px 40px 32px;text-align:center;">
     <img src="${LOGO_URL}" alt="Oak &amp; Aura Care" width="80" height="80"
-         style="display:block;margin:0 auto 18px;border-radius:16px;border:3px solid rgba(255,255,255,0.25);">
-    <div style="color:#C8A0E8;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:8px;">Oak &amp; Aura Care</div>
-    <div style="color:#ffffff;font-size:26px;font-weight:800;line-height:1.2;margin-bottom:8px;">${title}</div>
-    <div style="color:#D8B8F4;font-size:14px;line-height:1.5;">${subtitle}</div>
+         style="display:block;margin:0 auto 18px;border-radius:16px;border:3px solid rgba(255,255,255,0.30);">
+    <div style="color:#ffffff;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:10px;opacity:0.85;">Oak &amp; Aura Care</div>
+    <div style="color:#ffffff;font-size:28px;font-weight:800;line-height:1.2;margin-bottom:10px;">${title}</div>
+    <div style="color:#ffffff;font-size:14px;line-height:1.5;opacity:0.80;">${subtitle}</div>
   </td>
 </tr>`;
 }
@@ -134,70 +134,51 @@ function buildUserConfirmationEmail(
   email: string,
   phone: string,
   topic: string,
-  message: string,
+  ref: string,
   date: string,
-  time: string,
 ): string {
   const firstName = name.split(" ")[0];
   return emailWrapper(`
-    ${logoHeader("We've received your enquiry", `Thank you, ${firstName}.`)}
-    <tr><td style="padding:32px 40px 8px;">
-      <p style="margin:0;font-size:15px;color:#2a1050;line-height:1.7;">
-        Hi ${firstName}, we've received your message and a member of our team will be in touch
-        with you within <strong>1&ndash;2 business days</strong>.
+    <tr>
+      <td style="background:linear-gradient(135deg,#4A1070 0%,#2D0B50 100%);padding:32px 40px 28px;text-align:center;">
+        <img src="${LOGO_URL}" alt="Oak &amp; Aura Care" width="64" height="64"
+             style="display:block;margin:0 auto 14px;border-radius:14px;border:3px solid rgba(255,255,255,0.30);">
+        <div style="color:#ffffff;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;opacity:0.85;">Oak &amp; Aura Care</div>
+      </td>
+    </tr>
+    <tr><td style="padding:32px 40px 0;">
+      <p style="margin:0 0 16px;font-size:17px;font-weight:700;color:#1a1030;">Hi ${firstName},</p>
+      <p style="margin:0 0 16px;font-size:15px;color:#2a1050;line-height:1.7;">
+        Thank you for reaching out to Oak &amp; Aura Care. We have received your enquiry and a
+        team member will be in touch with you within <strong>1&ndash;2 business days</strong>.
+      </p>
+      <p style="margin:0 0 24px;font-size:14px;color:#5A3A80;font-weight:600;">
+        Reference: <span style="background:#F0E8FC;color:#4A1070;padding:3px 10px;border-radius:6px;font-family:monospace;letter-spacing:0.05em;">${ref}</span>
       </p>
     </td></tr>
-    ${cardSection("Your enquiry summary", "#4A1070",
-      detailRow("Name", name) +
-      detailRow("Email", email) +
-      detailRow("Phone", phone || "—") +
-      detailRow("Topic", topic) +
-      detailRow("Submitted", `${date} at ${time}`)
-    )}
-    ${cardSection("Your message", "#2D7A5A",
-      `<tr><td style="padding:14px 0 6px;">
-        <p style="font-size:14px;color:#1a1030;line-height:1.8;margin:0;white-space:pre-wrap;">${message.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p>
-      </td></tr>`
-    )}
-    <tr><td style="padding:0 40px 16px;">
+    <tr><td style="padding:0 40px 24px;">
       <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
-             style="background:#F5F0FD;border-radius:14px;border-left:4px solid #4A1070;">
+             style="background:#FAF7FE;border-radius:12px;border:1px solid #E0D0F0;">
         <tr>
-          <td style="padding:20px 24px;">
-            <div style="font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#6040A0;margin-bottom:12px;">What happens next</div>
-            <table cellpadding="0" cellspacing="0" role="presentation" width="100%">
-              <tr>
-                <td valign="top" width="30" style="padding-bottom:10px;">
-                  <div style="width:22px;height:22px;background:#4A1070;border-radius:50%;text-align:center;line-height:22px;color:#fff;font-size:11px;font-weight:700;">1</div>
-                </td>
-                <td style="padding-bottom:10px;padding-left:8px;font-size:13px;color:#2a1050;line-height:1.6;">
-                  Our team reviews your enquiry and matches you to the right support specialist.
-                </td>
-              </tr>
-              <tr>
-                <td valign="top" width="30" style="padding-bottom:10px;">
-                  <div style="width:22px;height:22px;background:#4A1070;border-radius:50%;text-align:center;line-height:22px;color:#fff;font-size:11px;font-weight:700;">2</div>
-                </td>
-                <td style="padding-bottom:10px;padding-left:8px;font-size:13px;color:#2a1050;line-height:1.6;">
-                  We'll reach out by phone or email to discuss your needs and next steps.
-                </td>
-              </tr>
-              <tr>
-                <td valign="top" width="30">
-                  <div style="width:22px;height:22px;background:#4A1070;border-radius:50%;text-align:center;line-height:22px;color:#fff;font-size:11px;font-weight:700;">3</div>
-                </td>
-                <td style="padding-left:8px;font-size:13px;color:#2a1050;line-height:1.6;">
-                  We work together to create a support plan built around your goals.
-                </td>
-              </tr>
+          <td style="padding:14px 20px 4px;">
+            <div style="font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#8050A8;margin-bottom:10px;">Your enquiry details</div>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0 20px 14px;">
+            <table width="100%" cellpadding="0" cellspacing="0" role="presentation">
+              ${detailRow("Email", email)}
+              ${phone ? detailRow("Phone", phone) : ""}
+              ${detailRow("Topic", topic)}
+              ${detailRow("Submitted", date)}
             </table>
           </td>
         </tr>
       </table>
     </td></tr>
     <tr><td style="padding:0 40px 32px;">
-      <p style="margin:0;font-size:13px;color:#6A5090;line-height:1.7;">
-        Need to speak with someone sooner? Call us on
+      <p style="margin:0;font-size:14px;color:#4A3068;line-height:1.7;">
+        If you need us sooner, call
         <a href="tel:+61452119743" style="color:#4A1070;font-weight:700;">+61 452 119 743</a>
         or email <a href="mailto:info@onacare.com.au" style="color:#4A1070;font-weight:700;">info@onacare.com.au</a>.
       </p>
@@ -235,12 +216,13 @@ export async function POST(req: NextRequest) {
     const date = now.toLocaleDateString("en-AU", { day: "2-digit", month: "long", year: "numeric" });
     const time = now.toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit", timeZone: "Australia/Sydney" });
     const phoneStr = phone ?? "";
+    const ref = `REF-${Math.random().toString(36).toUpperCase().slice(2, 7)}`;
 
     await transporter.sendMail({
       from,
       to: "Info@onacare.com.au",
       replyTo: email,
-      subject: `New enquiry from ${name} — ${topic}`,
+      subject: `[${ref}] New enquiry from ${name} — ${topic}`,
       html: buildAdminEmail(name, email, phoneStr, topic, message, date, time),
     });
 
@@ -248,8 +230,8 @@ export async function POST(req: NextRequest) {
       from,
       to: email,
       replyTo: "Info@onacare.com.au",
-      subject: `We've received your enquiry — Oak & Aura Care`,
-      html: buildUserConfirmationEmail(name, email, phoneStr, topic, message, date, time),
+      subject: `Enquiry received — Oak & Aura Care [${ref}]`,
+      html: buildUserConfirmationEmail(name, email, phoneStr, topic, ref, date),
     });
 
     return NextResponse.json({ success: true });
