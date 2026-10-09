@@ -5,192 +5,305 @@ import nodemailer from "nodemailer";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ReferralData = Record<string, any>;
 
-function row(label: string, value: string | undefined | null) {
-  if (!value) return "";
-  return `<tr>
-    <td style="padding:5px 8px 5px 0;font-size:12px;color:#7A5C9A;font-weight:700;width:38%;vertical-align:top;">${label}</td>
-    <td style="padding:5px 0;font-size:13px;color:#1a1020;vertical-align:top;line-height:1.5;">${value}</td>
-  </tr>`;
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://onacare.com.au";
+const LOGO_URL = `${SITE_URL}/images/logo.png`;
+
+// ─── Shared email primitives ────────────────────────────────────────────────
+
+function emailWrapper(body: string): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Oak &amp; Aura Care</title>
+</head>
+<body style="margin:0;padding:0;background:#EDE6F5;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="background:#EDE6F5;padding:32px 16px;">
+    <tr><td align="center">
+      <table width="620" cellpadding="0" cellspacing="0" role="presentation" style="max-width:620px;width:100%;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(60,10,110,0.13);">
+        ${body}
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
 }
 
-function section(title: string, rows: string) {
+function logoHeader(title: string, subtitle: string): string {
+  return `
+<tr>
+  <td style="background:linear-gradient(135deg,#4A1070 0%,#2D0B50 100%);padding:36px 40px 32px;text-align:center;">
+    <img src="${LOGO_URL}" alt="Oak &amp; Aura Care" width="80" height="80"
+         style="display:block;margin:0 auto 18px;border-radius:16px;border:3px solid rgba(255,255,255,0.25);">
+    <div style="color:#C8A0E8;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:8px;">Oak &amp; Aura Care</div>
+    <div style="color:#ffffff;font-size:26px;font-weight:800;line-height:1.2;margin-bottom:8px;">${title}</div>
+    <div style="color:#D8B8F4;font-size:14px;line-height:1.5;">${subtitle}</div>
+  </td>
+</tr>`;
+}
+
+function detailRow(label: string, value: string | undefined | null): string {
+  if (!value) return "";
+  return `
+    <tr>
+      <td style="padding:9px 14px 9px 0;font-size:11px;color:#8050A8;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;white-space:nowrap;vertical-align:top;width:150px;">${label}</td>
+      <td style="padding:9px 0;font-size:13px;color:#1a1030;line-height:1.6;vertical-align:top;">${value}</td>
+    </tr>`;
+}
+
+function cardSection(title: string, accent: string, rows: string): string {
   const content = rows.replace(/\n/g, "").trim();
   if (!content) return "";
   return `
-    <div style="margin-bottom:20px;">
-      <div style="background:#5A1E82;color:#fff;font-size:10px;font-weight:800;letter-spacing:0.12em;text-transform:uppercase;padding:7px 14px;border-radius:8px 8px 0 0;">${title}</div>
-      <div style="background:#F8F4FC;border:1px solid #E2D0F0;border-top:none;border-radius:0 0 8px 8px;padding:14px 16px;">
-        <table style="width:100%;border-collapse:collapse;">${content}</table>
-      </div>
-    </div>`;
+<tr><td style="padding:0 40px 24px;">
+  <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
+         style="border-radius:12px;overflow:hidden;border:1px solid ${accent}30;">
+    <tr>
+      <td style="background:${accent};padding:10px 18px;">
+        <span style="color:#fff;font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;">${title}</span>
+      </td>
+    </tr>
+    <tr>
+      <td style="background:#FAF7FE;padding:6px 18px 10px;">
+        <table width="100%" cellpadding="0" cellspacing="0" role="presentation">${content}</table>
+      </td>
+    </tr>
+  </table>
+</td></tr>`;
 }
 
-function bool(v: boolean | undefined) {
+function footerRow(): string {
+  return `
+<tr>
+  <td style="background:#F3EEF9;padding:22px 40px;border-top:1px solid #E0D0F0;text-align:center;">
+    <div style="font-size:13px;color:#7050A0;font-weight:600;">Oak &amp; Aura Care</div>
+    <div style="font-size:12px;color:#9070B8;margin-top:4px;">
+      <a href="mailto:info@onacare.com.au" style="color:#7050A0;text-decoration:none;">info@onacare.com.au</a>
+      &nbsp;·&nbsp; +61 452 119 743 &nbsp;·&nbsp; Sydney NSW 2000
+    </div>
+    <div style="font-size:11px;color:#B09AC8;margin-top:6px;">
+      Registered NDIS Provider &nbsp;·&nbsp; ABN available on request
+    </div>
+  </td>
+</tr>`;
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function bool(v: boolean | undefined): string {
   return v ? "Yes" : "";
 }
 
-function list(arr: string[] | undefined) {
+function list(arr: string[] | undefined): string {
   return arr && arr.length > 0 ? arr.join(", ") : "";
 }
 
-function buildAdminEmail(d: ReferralData, date: string): string {
+function referrerLabel(type: string | undefined): string {
+  const map: Record<string, string> = {
+    self: "Self (participant)",
+    family: "Family member or carer",
+    coordinator: "Support coordinator",
+    health: "Health professional",
+    plan_manager: "Plan manager",
+  };
+  return (type && map[type]) || type || "";
+}
+
+function fundingLabel(type: string | undefined): string {
+  const map: Record<string, string> = {
+    self: "Self-managed",
+    plan: "Plan-managed",
+    ndia: "NDIA-managed",
+    unsure: "Not sure",
+  };
+  return (type && map[type]) || type || "";
+}
+
+// ─── Admin email ──────────────────────────────────────────────────────────────
+
+function buildAdminEmail(d: ReferralData, date: string, time: string): string {
   const participantName = d.participantFullName || d.referrerName || "Unknown";
   const serviceNames = (d.servicesRequested as string[] | undefined)?.join(", ") || "Not specified";
 
-  const referrerSection = section("1. Referrer details", `
-    ${row("Relationship", d.referrerType === "self" ? "Self (participant)" : d.referrerType === "family" ? "Family member or carer" : d.referrerType === "coordinator" ? "Support coordinator" : d.referrerType === "health" ? "Health professional" : d.referrerType === "plan_manager" ? "Plan manager" : d.referrerType)}
-    ${row("Name", d.referrerName)}
-    ${row("Email", d.referrerEmail)}
-    ${row("Phone", d.referrerPhone)}
-    ${row("Organisation", d.referrerOrg)}
-  `);
+  const serviceBadge = `
+<tr>
+  <td style="padding:0 40px 28px;">
+    <table cellpadding="0" cellspacing="0" role="presentation">
+      <tr>
+        <td style="background:#2D7A5A;border-radius:8px;padding:10px 20px;">
+          <span style="color:#fff;font-size:12px;font-weight:700;letter-spacing:0.05em;">Services requested: ${serviceNames}</span>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>`;
 
-  const participantSection = section("2. Participant details", `
-    ${row("Full name", d.participantFullName)}
-    ${row("Preferred name", d.participantPreferredName)}
-    ${row("Date of birth", d.participantDob)}
-    ${row("Gender", d.participantGender)}
-    ${row("Phone", d.participantPhone)}
-    ${row("Email", d.participantEmail)}
-    ${row("Address", [d.participantAddress, d.participantSuburb, d.participantPostcode].filter(Boolean).join(", "))}
-    ${row("Primary disability", d.participantDisability)}
-    ${row("Language at home", d.participantLanguage)}
-    ${row("Interpreter required", bool(d.interpreterRequired))}
-    ${row("ATSI", bool(d.atsi))}
-    ${row("Lives alone", bool(d.livesAlone))}
-    ${row("Emergency contact", d.emergencyContactName)}
-    ${row("Emergency phone", d.emergencyContactPhone)}
-    ${row("Guardian/nominee", d.guardianName)}
-    ${row("Guardian phone", d.guardianPhone)}
+  return emailWrapper(`
+    ${logoHeader("New NDIS Referral", `${participantName} &nbsp;·&nbsp; ${date} at ${time}`)}
+    <tr><td style="padding:28px 40px 8px;">
+      <p style="margin:0;font-size:15px;color:#2a1050;line-height:1.7;">
+        A new NDIS referral has been submitted. All sections are detailed below.
+      </p>
+    </td></tr>
+    ${serviceBadge}
+    ${cardSection("1. Referrer details", "#4A1070",
+      detailRow("Relationship", referrerLabel(d.referrerType)) +
+      detailRow("Name", d.referrerName) +
+      detailRow("Email", d.referrerEmail ? `<a href="mailto:${d.referrerEmail}" style="color:#5A1E82;">${d.referrerEmail}</a>` : "") +
+      detailRow("Phone", d.referrerPhone ? `<a href="tel:${String(d.referrerPhone).replace(/\s/g,'')}" style="color:#5A1E82;">${d.referrerPhone}</a>` : "") +
+      detailRow("Organisation", d.referrerOrg)
+    )}
+    ${cardSection("2. Participant details", "#3D1080",
+      detailRow("Full name", d.participantFullName) +
+      detailRow("Preferred name", d.participantPreferredName) +
+      detailRow("Date of birth", d.participantDob) +
+      detailRow("Gender", d.participantGender) +
+      detailRow("Phone", d.participantPhone ? `<a href="tel:${String(d.participantPhone).replace(/\s/g,'')}" style="color:#5A1E82;">${d.participantPhone}</a>` : "") +
+      detailRow("Email", d.participantEmail ? `<a href="mailto:${d.participantEmail}" style="color:#5A1E82;">${d.participantEmail}</a>` : "") +
+      detailRow("Address", [d.participantAddress, d.participantSuburb, d.participantPostcode].filter(Boolean).join(", ")) +
+      detailRow("Primary disability", d.participantDisability) +
+      detailRow("Language at home", d.participantLanguage) +
+      detailRow("Interpreter needed", bool(d.interpreterRequired)) +
+      detailRow("ATSI", bool(d.atsi)) +
+      detailRow("Lives alone", bool(d.livesAlone)) +
+      detailRow("Emergency contact", d.emergencyContactName) +
+      detailRow("Emergency phone", d.emergencyContactPhone) +
+      detailRow("Guardian / nominee", d.guardianName) +
+      detailRow("Guardian phone", d.guardianPhone)
+    )}
+    ${cardSection("3. NDIS plan details", "#1A5580",
+      detailRow("NDIS number", d.ndisNumber) +
+      detailRow("Plan start", d.planStartDate) +
+      detailRow("Plan end", d.planEndDate) +
+      detailRow("Review date", d.reviewDate) +
+      detailRow("Funding management", fundingLabel(d.fundingManagement)) +
+      detailRow("Plan manager", d.planManagerName) +
+      detailRow("Plan manager email", d.planManagerEmail) +
+      detailRow("Support coordinator", d.coordinatorName) +
+      detailRow("Coordinator contact", d.coordinatorContact) +
+      detailRow("Plan goals", d.planGoals)
+    )}
+    ${cardSection("4. Services requested", "#2D7A5A",
+      detailRow("Services", serviceNames)
+    )}
+    ${cardSection("5. Support preferences", "#3D6A20",
+      detailRow("Support types", list(d.supportTypes)) +
+      detailRow("Hours per week", d.hoursPerWeek) +
+      detailRow("Preferred days", list(d.preferredDays)) +
+      detailRow("Preferred times", list(d.preferredTimes)) +
+      detailRow("Support ratio", d.supportRatio) +
+      detailRow("Preferred start", d.preferredStartDate) +
+      detailRow("Location", d.supportLocation) +
+      detailRow("Worker preferences", d.workerPreferences)
+    )}
+    ${cardSection("6. Health &amp; safety", "#8B3010",
+      detailRow("Flags", list(d.healthSafetyFlags)) +
+      detailRow("Details", d.healthDetails)
+    )}
+    ${cardSection("7. Goals &amp; referral reason", "#5A4010",
+      detailRow("Reason for referral", d.referralReason) +
+      detailRow("Other providers", d.otherProviders) +
+      detailRow("Documents available", list(d.documentsAttached))
+    )}
+    ${cardSection("8. Consent", "#2A5040",
+      detailRow("Consent given", d.consent1 && d.consent2 && d.consent3 ? "Yes — all three declarations accepted" : "Incomplete") +
+      detailRow("Signed by", d.consentName) +
+      detailRow("Relationship", d.consentRelationship) +
+      detailRow("Signature", d.consentSignature) +
+      detailRow("Date", d.consentDate)
+    )}
+    <tr><td style="padding:0 40px 8px;">
+      <table cellpadding="0" cellspacing="0" role="presentation">
+        <tr>
+          <td style="background:#4A1070;border-radius:8px;padding:12px 24px;">
+            <a href="mailto:${d.referrerEmail || d.participantEmail || ''}?subject=Re: NDIS Referral — ${participantName}"
+               style="color:#ffffff;font-size:13px;font-weight:700;text-decoration:none;letter-spacing:0.04em;">
+              Reply to referrer →
+            </a>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+    <tr><td style="padding:0 40px 32px;">
+      <p style="margin:0;font-size:12px;color:#9070B0;">Submitted via the Oak &amp; Aura Care website on ${date} at ${time}.</p>
+    </td></tr>
+    ${footerRow()}
   `);
-
-  const ndisSection = section("3. NDIS plan details", `
-    ${row("NDIS number", d.ndisNumber)}
-    ${row("Plan start", d.planStartDate)}
-    ${row("Plan end", d.planEndDate)}
-    ${row("Review date", d.reviewDate)}
-    ${row("Funding management", d.fundingManagement === "self" ? "Self-managed" : d.fundingManagement === "plan" ? "Plan-managed" : d.fundingManagement === "ndia" ? "NDIA-managed" : d.fundingManagement === "unsure" ? "Not sure" : d.fundingManagement)}
-    ${row("Plan manager", d.planManagerName)}
-    ${row("Plan manager email", d.planManagerEmail)}
-    ${row("Support coordinator", d.coordinatorName)}
-    ${row("Coordinator contact", d.coordinatorContact)}
-    ${row("Plan goals", d.planGoals)}
-  `);
-
-  const servicesSection = section("4. Services requested", `
-    ${row("Services", serviceNames)}
-  `);
-
-  const supportSection = section("5. Support preferences", `
-    ${row("Support types", list(d.supportTypes))}
-    ${row("Hours per week", d.hoursPerWeek)}
-    ${row("Preferred days", list(d.preferredDays))}
-    ${row("Preferred times", list(d.preferredTimes))}
-    ${row("Support ratio", d.supportRatio)}
-    ${row("Start date", d.preferredStartDate)}
-    ${row("Location", d.supportLocation)}
-    ${row("Worker preferences", d.workerPreferences)}
-  `);
-
-  const healthSection = section("6. Health &amp; safety", `
-    ${row("Flags", list(d.healthSafetyFlags))}
-    ${row("Details", d.healthDetails)}
-  `);
-
-  const goalsSection = section("7. Goals &amp; referral reason", `
-    ${row("Reason for referral", d.referralReason)}
-    ${row("Other providers", d.otherProviders)}
-    ${row("Documents available", list(d.documentsAttached))}
-  `);
-
-  const consentSection = section("8. Consent", `
-    ${row("Consent given", d.consent1 && d.consent2 && d.consent3 ? "Yes — all three declarations accepted" : "Incomplete")}
-    ${row("Signed by", d.consentName)}
-    ${row("Relationship", d.consentRelationship)}
-    ${row("Signature", d.consentSignature)}
-    ${row("Date", d.consentDate)}
-  `);
-
-  return `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#F0EAF8;font-family:Arial,Helvetica,sans-serif;">
-<div style="max-width:620px;margin:28px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(90,30,130,0.14);">
-  <div style="background:linear-gradient(135deg,#5A1E82 0%,#3D1360 100%);padding:30px 36px 26px;">
-    <div style="color:#C4A0E8;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;">Oak &amp; Aura Care</div>
-    <div style="color:#fff;font-size:22px;font-weight:800;margin-top:8px;line-height:1.2;">New NDIS Referral</div>
-    <div style="color:#D4B0F0;font-size:13px;margin-top:6px;">${participantName} &nbsp;·&nbsp; ${date}</div>
-    <div style="background:rgba(255,255,255,0.15);border-radius:8px;margin-top:14px;padding:10px 14px;">
-      <div style="color:#fff;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px;">Services requested</div>
-      <div style="color:#E8D4FF;font-size:13px;">${serviceNames}</div>
-    </div>
-  </div>
-  <div style="padding:28px 36px 20px;">
-    ${referrerSection}
-    ${participantSection}
-    ${ndisSection}
-    ${servicesSection}
-    ${supportSection}
-    ${healthSection}
-    ${goalsSection}
-    ${consentSection}
-  </div>
-  <div style="background:#F5F0FA;padding:18px 36px;text-align:center;border-top:1px solid #E8D8F5;">
-    <div style="font-size:12px;color:#9070B0;">Oak &amp; Aura Care &nbsp;·&nbsp; info@onacare.com.au &nbsp;·&nbsp; +61 452 119 743</div>
-    <div style="font-size:11px;color:#B09AC0;margin-top:4px;">This referral was submitted via the Oak &amp; Aura Care website on ${date}</div>
-  </div>
-</div>
-</body></html>`;
 }
 
-function buildConfirmationEmail(d: ReferralData, date: string): string {
-  const name = d.referrerName || "there";
+// ─── User confirmation email ──────────────────────────────────────────────────
+
+function buildConfirmationEmail(d: ReferralData, date: string, time: string): string {
+  const referrerFirstName = (d.referrerName || "there").split(" ")[0];
   const serviceNames = (d.servicesRequested as string[] | undefined)?.join(", ") || "the selected services";
-  const participantName = d.referrerType === "self"
-    ? "yourself"
-    : d.participantFullName || "the participant";
+  const participantName = d.referrerType === "self" ? "yourself" : d.participantFullName || "the participant";
 
-  return `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#F0EAF8;font-family:Arial,Helvetica,sans-serif;">
-<div style="max-width:560px;margin:28px auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 32px rgba(90,30,130,0.14);">
-  <div style="background:linear-gradient(135deg,#5A1E82 0%,#3D1360 100%);padding:32px 36px 28px;text-align:center;">
-    <div style="color:#C4A0E8;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;">Oak &amp; Aura Care</div>
-    <div style="margin:14px auto;width:56px;height:56px;background:rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;">
-      <span style="color:#fff;font-size:28px;">✓</span>
-    </div>
-    <div style="color:#fff;font-size:22px;font-weight:800;margin-top:8px;">Referral received</div>
-    <div style="color:#D4B0F0;font-size:14px;margin-top:8px;">Thank you, ${name}.</div>
-  </div>
-  <div style="padding:30px 36px;">
-    <p style="font-size:14px;color:#2a1040;line-height:1.7;margin:0 0 20px;">
-      We've received your referral for <strong>${participantName}</strong> regarding <strong>${serviceNames}</strong>. A copy of this referral has been sent to our team and we'll be in touch within <strong>1 business day</strong>.
-    </p>
-    <div style="background:#F5F0FA;border-radius:12px;padding:20px 22px;margin-bottom:24px;">
-      <div style="font-size:11px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#7A4BAA;margin-bottom:12px;">What happens next</div>
-      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;">
-        <div style="min-width:24px;height:24px;background:#5A1E82;border-radius:50%;text-align:center;line-height:24px;color:#fff;font-size:11px;font-weight:700;">1</div>
-        <div style="font-size:13px;color:#2a1040;line-height:1.5;padding-top:3px;">A member of our team reviews your referral and confirms we can meet the support needs.</div>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;">
-        <div style="min-width:24px;height:24px;background:#5A1E82;border-radius:50%;text-align:center;line-height:24px;color:#fff;font-size:11px;font-weight:700;">2</div>
-        <div style="font-size:13px;color:#2a1040;line-height:1.5;padding-top:3px;">We contact you to arrange an initial conversation about goals and support options.</div>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;">
-        <div style="min-width:24px;height:24px;background:#5A1E82;border-radius:50%;text-align:center;line-height:24px;color:#fff;font-size:11px;font-weight:700;">3</div>
-        <div style="font-size:13px;color:#2a1040;line-height:1.5;padding-top:3px;">We complete an assessment and create a support plan tailored to the participant's needs and goals.</div>
-      </div>
-    </div>
-    <p style="font-size:13px;color:#6A5080;line-height:1.6;margin:0;">
-      If you have urgent concerns or need to speak with someone sooner, please call us directly on <strong>+61 452 119 743</strong> or email <a href="mailto:info@onacare.com.au" style="color:#5A1E82;font-weight:700;">info@onacare.com.au</a>.
-    </p>
-  </div>
-  <div style="background:#F5F0FA;padding:18px 36px;text-align:center;border-top:1px solid #E8D8F5;">
-    <div style="font-size:12px;color:#9070B0;">Oak &amp; Aura Care &nbsp;·&nbsp; info@onacare.com.au &nbsp;·&nbsp; +61 452 119 743</div>
-    <div style="font-size:11px;color:#B09AC0;margin-top:4px;">Submitted ${date}</div>
-  </div>
-</div>
-</body></html>`;
+  return emailWrapper(`
+    ${logoHeader("Referral received", `Thank you, ${referrerFirstName}.`)}
+    <tr><td style="padding:32px 40px 16px;">
+      <p style="margin:0;font-size:15px;color:#2a1050;line-height:1.7;">
+        We've received your NDIS referral for <strong>${participantName}</strong> regarding
+        <strong>${serviceNames}</strong>. A member of our team will be in touch within
+        <strong>1 business day</strong>.
+      </p>
+    </td></tr>
+    ${cardSection("Your referral summary", "#4A1070",
+      detailRow("Referrer", d.referrerName) +
+      detailRow("Participant", d.participantFullName || "—") +
+      detailRow("Services", serviceNames) +
+      detailRow("Submitted", `${date} at ${time}`) +
+      (d.ndisNumber ? detailRow("NDIS number", d.ndisNumber) : "")
+    )}
+    <tr><td style="padding:0 40px 16px;">
+      <table width="100%" cellpadding="0" cellspacing="0" role="presentation"
+             style="background:#F5F0FD;border-radius:14px;border-left:4px solid #4A1070;">
+        <tr>
+          <td style="padding:20px 24px;">
+            <div style="font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#6040A0;margin-bottom:14px;">What happens next</div>
+            <table cellpadding="0" cellspacing="0" role="presentation" width="100%">
+              <tr>
+                <td valign="top" width="30" style="padding-bottom:12px;">
+                  <div style="width:24px;height:24px;background:#4A1070;border-radius:50%;text-align:center;line-height:24px;color:#fff;font-size:11px;font-weight:700;">1</div>
+                </td>
+                <td style="padding-bottom:12px;padding-left:10px;font-size:13px;color:#2a1050;line-height:1.6;vertical-align:top;">
+                  Our team reviews your referral and confirms we can meet the support needs.
+                </td>
+              </tr>
+              <tr>
+                <td valign="top" width="30" style="padding-bottom:12px;">
+                  <div style="width:24px;height:24px;background:#4A1070;border-radius:50%;text-align:center;line-height:24px;color:#fff;font-size:11px;font-weight:700;">2</div>
+                </td>
+                <td style="padding-bottom:12px;padding-left:10px;font-size:13px;color:#2a1050;line-height:1.6;vertical-align:top;">
+                  We contact you to arrange a conversation about goals and support options.
+                </td>
+              </tr>
+              <tr>
+                <td valign="top" width="30">
+                  <div style="width:24px;height:24px;background:#4A1070;border-radius:50%;text-align:center;line-height:24px;color:#fff;font-size:11px;font-weight:700;">3</div>
+                </td>
+                <td style="padding-left:10px;font-size:13px;color:#2a1050;line-height:1.6;vertical-align:top;">
+                  We complete an assessment and build a support plan around the participant's goals.
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+    <tr><td style="padding:0 40px 32px;">
+      <p style="margin:0;font-size:13px;color:#6A5090;line-height:1.7;">
+        Need to speak with someone sooner? Call us on
+        <a href="tel:+61452119743" style="color:#4A1070;font-weight:700;">+61 452 119 743</a>
+        or email <a href="mailto:info@onacare.com.au" style="color:#4A1070;font-weight:700;">info@onacare.com.au</a>.
+      </p>
+    </td></tr>
+    ${footerRow()}
+  `);
 }
+
+// ─── Route handler ────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   try {
@@ -204,33 +317,33 @@ export async function POST(req: NextRequest) {
     }
 
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST ?? "smtp.gmail.com",
+      host: process.env.SMTP_HOST ?? "smtp.office365.com",
       port: Number(process.env.SMTP_PORT ?? 587),
-      secure: process.env.SMTP_SECURE === "true",
+      secure: process.env.SMTP_SECURE !== "false",
       auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
     });
 
     const from = process.env.SMTP_FROM ?? `"Oak & Aura Care" <${process.env.SMTP_USER}>`;
-    const date = new Date().toLocaleDateString("en-AU", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
+    const now = new Date();
+    const date = now.toLocaleDateString("en-AU", { day: "2-digit", month: "long", year: "numeric" });
+    const time = now.toLocaleTimeString("en-AU", { hour: "2-digit", minute: "2-digit", timeZone: "Australia/Sydney" });
     const participantName = data.participantFullName || data.referrerName || "New participant";
 
     await transporter.sendMail({
       from,
-      to: "info@onacare.com.au",
+      to: "Info@onacare.com.au",
+      replyTo: data.referrerEmail as string | undefined,
       subject: `New NDIS Referral: ${participantName} — ${date}`,
-      html: buildAdminEmail(data, date),
+      html: buildAdminEmail(data, date, time),
     });
 
     if (data.referrerEmail) {
       await transporter.sendMail({
         from,
         to: data.referrerEmail as string,
-        subject: "Your referral has been received — Oak & Aura Care",
-        html: buildConfirmationEmail(data, date),
+        replyTo: "Info@onacare.com.au",
+        subject: "Your NDIS referral has been received — Oak & Aura Care",
+        html: buildConfirmationEmail(data, date, time),
       });
     }
 
