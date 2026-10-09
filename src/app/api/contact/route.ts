@@ -27,15 +27,23 @@ function emailWrapper(body: string): string {
 </html>`;
 }
 
-function logoHeader(title: string, subtitle: string): string {
+function compactLogoHeader(): string {
   return `
 <tr>
-  <td style="background:linear-gradient(135deg,#4A1070 0%,#2D0B50 100%);padding:36px 40px 32px;text-align:center;">
-    <img src="${LOGO_URL}" alt="Oak &amp; Aura Care" width="80" height="80"
-         style="display:block;margin:0 auto 18px;border-radius:16px;border:3px solid rgba(255,255,255,0.30);">
-    <div style="color:#ffffff;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;margin-bottom:10px;opacity:0.85;">Oak &amp; Aura Care</div>
-    <div style="color:#ffffff;font-size:28px;font-weight:800;line-height:1.2;margin-bottom:10px;">${title}</div>
-    <div style="color:#ffffff;font-size:14px;line-height:1.5;opacity:0.80;">${subtitle}</div>
+  <td style="background:linear-gradient(135deg,#4A1070 0%,#2D0B50 100%);padding:20px 40px;text-align:center;">
+    <img src="${LOGO_URL}" alt="Oak &amp; Aura Care" width="52" height="52"
+         style="display:inline-block;vertical-align:middle;border-radius:12px;border:2px solid rgba(255,255,255,0.30);margin-right:12px;">
+    <span style="color:#ffffff;font-size:15px;font-weight:700;letter-spacing:0.04em;vertical-align:middle;">Oak &amp; Aura Care</span>
+  </td>
+</tr>`;
+}
+
+function bodyTitle(title: string, subtitle: string): string {
+  return `
+<tr>
+  <td style="padding:28px 40px 4px;border-bottom:1px solid #EDE6F5;">
+    <div style="font-size:22px;font-weight:800;color:#1a1030;line-height:1.2;margin-bottom:6px;">${title}</div>
+    <div style="font-size:13px;color:#8060A8;">${subtitle}</div>
   </td>
 </tr>`;
 }
@@ -96,9 +104,10 @@ function buildAdminEmail(
   time: string,
 ): string {
   return emailWrapper(`
-    ${logoHeader("New Website Enquiry", `Received ${date} at ${time}`)}
-    <tr><td style="padding:32px 40px 8px;">
-      <p style="margin:0;font-size:15px;color:#2a1050;line-height:1.7;">
+    ${compactLogoHeader()}
+    ${bodyTitle("New Website Enquiry", `Received ${date} at ${time}`)}
+    <tr><td style="padding:20px 40px 8px;">
+      <p style="margin:0;font-size:14px;color:#4A3068;line-height:1.7;">
         A new enquiry has been submitted through the Oak &amp; Aura Care website. All details are below.
       </p>
     </td></tr>
@@ -141,10 +150,10 @@ function buildUserConfirmationEmail(
   const firstName = name.split(" ")[0];
   return emailWrapper(`
     <tr>
-      <td style="background:linear-gradient(135deg,#4A1070 0%,#2D0B50 100%);padding:32px 40px 28px;text-align:center;">
-        <img src="${LOGO_URL}" alt="Oak &amp; Aura Care" width="64" height="64"
-             style="display:block;margin:0 auto 14px;border-radius:14px;border:3px solid rgba(255,255,255,0.30);">
-        <div style="color:#ffffff;font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;opacity:0.85;">Oak &amp; Aura Care</div>
+      <td style="background:linear-gradient(135deg,#4A1070 0%,#2D0B50 100%);padding:20px 40px;text-align:center;">
+        <img src="${LOGO_URL}" alt="Oak &amp; Aura Care" width="52" height="52"
+             style="display:inline-block;vertical-align:middle;border-radius:12px;border:2px solid rgba(255,255,255,0.30);margin-right:12px;">
+        <span style="color:#ffffff;font-size:15px;font-weight:700;letter-spacing:0.04em;vertical-align:middle;">Oak &amp; Aura Care</span>
       </td>
     </tr>
     <tr><td style="padding:32px 40px 0;">
