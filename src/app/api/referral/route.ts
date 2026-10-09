@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { buildReferralPdf } from "@/lib/buildPdf";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ReferralData = Record<string, any>;
@@ -318,12 +319,21 @@ export async function POST(req: NextRequest) {
     const participantName = data.participantFullName || data.referrerName || "New participant";
     const ref = `REF-${Math.random().toString(36).toUpperCase().slice(2, 7)}`;
 
+    const pdfBuffer = await buildReferralPdf(data, date, time, ref);
+
     await transporter.sendMail({
       from,
       to: "Info@onacare.com.au",
       replyTo: data.referrerEmail as string | undefined,
       subject: `[${ref}] New NDIS Referral: ${participantName} — ${date}`,
       html: buildAdminEmail(data, date, time),
+      attachments: [
+        {
+          filename: `referral-${ref}.pdf`,
+          content: pdfBuffer,
+          contentType: "application/pdf",
+        },
+      ],
     });
 
     if (data.referrerEmail) {

@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { buildContactPdf } from "@/lib/buildPdf";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://onacare.com.au";
 const LOGO_URL = `${SITE_URL}/images/logo.png`;
@@ -218,12 +219,21 @@ export async function POST(req: NextRequest) {
     const phoneStr = phone ?? "";
     const ref = `REF-${Math.random().toString(36).toUpperCase().slice(2, 7)}`;
 
+    const pdfBuffer = await buildContactPdf(name, email, phoneStr, topic, message, date, time, ref);
+
     await transporter.sendMail({
       from,
       to: "Info@onacare.com.au",
       replyTo: email,
       subject: `[${ref}] New enquiry from ${name} — ${topic}`,
       html: buildAdminEmail(name, email, phoneStr, topic, message, date, time),
+      attachments: [
+        {
+          filename: `enquiry-${ref}.pdf`,
+          content: pdfBuffer,
+          contentType: "application/pdf",
+        },
+      ],
     });
 
     await transporter.sendMail({
