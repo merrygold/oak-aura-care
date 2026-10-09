@@ -10,6 +10,8 @@ const labelClasses = "text-sm font-medium leading-none";
 
 export function EnquiryForm() {
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   if (sent) {
     return (
@@ -22,13 +24,34 @@ export function EnquiryForm() {
     );
   }
 
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    const form = e.currentTarget;
+    const data = Object.fromEntries(new FormData(form));
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const json = await res.json().catch(() => ({})) as { error?: string };
+        throw new Error(json.error ?? "Something went wrong. Please try again.");
+      }
+      setSent(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <form
       className="mt-6 grid gap-5"
-      onSubmit={(e) => {
-        e.preventDefault();
-        setSent(true);
-      }}
+      onSubmit={handleSubmit}
     >
       <div className="grid gap-2">
         <label className={labelClasses} htmlFor="name">
@@ -88,8 +111,15 @@ export function EnquiryForm() {
           placeholder="Share only what you are comfortable sharing."
         />
       </div>
-      <button className={`${buttonVariants.primary} py-2 h-11 rounded-full justify-self-start px-6`} type="submit">
-        Send enquiry
+      {error && (
+        <p className="text-sm text-red-600">{error}</p>
+      )}
+      <button
+        className={`${buttonVariants.primary} py-2 h-11 rounded-full justify-self-start px-6 disabled:opacity-60`}
+        type="submit"
+        disabled={submitting}
+      >
+        {submitting ? "Sending…" : "Send enquiry"}
       </button>
     </form>
   );
